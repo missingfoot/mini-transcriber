@@ -16,7 +16,6 @@ const settingsLink = document.getElementById('settings-link');
 const settingsModal = document.getElementById('settings-modal');
 const closeSettings = document.getElementById('close-settings');
 const apiKeyInput = document.getElementById('api-key-input');
-const saveApiKeyBtn = document.getElementById('save-api-key');
 
 // Theme switching logic
 const themeRadios = document.querySelectorAll('input[name="theme"]');
@@ -55,6 +54,14 @@ settingsLink.addEventListener('click', () => {
 
 if (apiKeyInput) {
   apiKeyInput.value = localStorage.getItem('assemblyai_api_key') || '';
+  apiKeyInput.addEventListener('input', () => {
+    localStorage.setItem('assemblyai_api_key', apiKeyInput.value.trim());
+  });
+  apiKeyInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      settingsModal.style.display = 'none';
+    }
+  });
 }
 settingsLink.addEventListener('click', (e) => {
   e.preventDefault();
@@ -63,11 +70,6 @@ settingsLink.addEventListener('click', (e) => {
   apiKeyInput.focus();
 });
 closeSettings.addEventListener('click', () => {
-  settingsModal.style.display = 'none';
-});
-saveApiKeyBtn.addEventListener('click', () => {
-  const API_KEY = apiKeyInput.value.trim();
-  localStorage.setItem('assemblyai_api_key', API_KEY);
   settingsModal.style.display = 'none';
 });
 window.addEventListener('click', (e) => {
@@ -122,6 +124,9 @@ fileElem.addEventListener('change', () => {
   if (fileElem.files.length) handleFile(fileElem.files[0]);
 });
 
+let currentUploadXhr = null;
+const cancelUploadBtn = document.getElementById('cancel-upload');
+
 async function handleFile(file) {
   const API_KEY = localStorage.getItem('assemblyai_api_key') || '';
   if (!API_KEY) {
@@ -130,17 +135,46 @@ async function handleFile(file) {
   }
   showTranscriptSection(false);
   showSpinner(true);
-  setStatus('Uploading file…');
+  setStatus('Uploading file… 0%');
+  cancelUploadBtn.style.display = 'block';
+  let cancelled = false;
   try {
-    // 1. Upload file to AssemblyAI
-    const uploadRes = await fetch(UPLOAD_URL, {
-      method: 'POST',
-      headers: { 'authorization': API_KEY },
-      body: file
+    // 1. Upload file to AssemblyAI with progress
+    const uploadUrl = UPLOAD_URL;
+    const xhr = new XMLHttpRequest();
+    currentUploadXhr = xhr;
+    xhr.open('POST', uploadUrl, true);
+    xhr.setRequestHeader('authorization', API_KEY);
+    const uploadPromise = new Promise((resolve, reject) => {
+      xhr.upload.onprogress = function (e) {
+        if (e.lengthComputable) {
+          const percent = Math.round((e.loaded / e.total) * 100);
+          setStatus(`Uploading file… ${percent}%`);
+        }
+      };
+      xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve(JSON.parse(xhr.responseText));
+        } else {
+          reject(new Error('Upload failed'));
+        }
+      };
+      xhr.onerror = function () {
+        reject(new Error('Upload failed'));
+      };
+      cancelUploadBtn.onclick = function () {
+        cancelled = true;
+        xhr.abort();
+        showSpinner(false);
+        cancelUploadBtn.style.display = 'none';
+        setStatus('Upload cancelled.');
+      };
     });
-    if (!uploadRes.ok) throw new Error('Upload failed');
+    xhr.send(file);
+    const { upload_url } = await uploadPromise;
+    if (cancelled) return;
+    cancelUploadBtn.style.display = 'none';
     setStatus('Requesting transcription…');
-    const { upload_url } = await uploadRes.json();
 
     // 2. Request transcription
     const transcriptRes = await fetch(TRANSCRIPT_URL, {
@@ -205,7 +239,9 @@ async function handleFile(file) {
   } catch (err) {
     showError(err.message);
     setStatus('An error occurred.');
+    cancelUploadBtn.style.display = 'none';
   } finally {
     showSpinner(false);
+    currentUploadXhr = null;
   }
 } 
