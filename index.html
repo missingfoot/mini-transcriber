@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Transcriber</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header-row">
+      <h2>Mini Transcriber</h2>
+      <a href="#" id="settings-link">Settings</a>
+    </div>
+    <div id="settings-modal" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close" id="close-settings">&times;</span>
+        <h3>Settings</h3>
+        <label for="api-key-input">AssemblyAI API Key:</label>
+        <p class="api-desc">To use this app, you need your own <a href="https://www.assemblyai.com/" target="_blank" rel="noopener">AssemblyAI</a> account and API key. This key is used to securely send your audio/video to AssemblyAI for transcription. <br>Sign up for a free account, copy your API key from their dashboard, and paste it below. Your key is stored only in your browser.</p>
+        <input type="text" id="api-key-input" placeholder="Paste your API key here">
+        <button id="save-api-key">Save</button>
+        <div class="theme-setting">
+          <label>Theme:</label><br>
+          <label><input type="radio" name="theme" value="device" checked> Device</label>
+          <label><input type="radio" name="theme" value="light"> Light</label>
+          <label><input type="radio" name="theme" value="dark"> Dark</label>
+        </div>
+      </div>
+    </div>
+    <div id="drop-area">
+      <p>Drag & drop an audio or video file here<br>or click to select</p>
+      <input type="file" id="fileElem" accept="audio/*,video/*" style="display:none">
+      <button id="fileSelect">Choose File</button>
+    </div>
+    <div id="spinner" style="display:none;"></div>
+    <div id="status-message" style="display:none;"></div>
+    <div id="transcript-section" style="display:none;">
+      <div class="transcript-header">
+        <h2>Transcript</h2>
+        <button id="copyBtn">Copy</button>
+      </div>
+      <div id="transcript"></div>
+    </div>
+  </div>
+  <script src="main.js"></script>
+</body>
+</html> 
