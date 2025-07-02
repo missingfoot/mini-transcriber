@@ -253,6 +253,8 @@ async function handleFile(file) {
         playerEl.style.display = 'block';
         playerEl.style.objectFit = 'contain';
         playerEl.style.maxHeight = '240px';
+        playerEl.setAttribute('playsinline', '');
+        playerEl.setAttribute('webkit-playsinline', '');
         playerEl.src = url;
         playerEl.id = 'media-player';
         wrapper.appendChild(playerEl);
