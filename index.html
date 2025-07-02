@@ -17,7 +17,7 @@
         <span class="close" id="close-settings">&times;</span>
         <h3>Settings</h3>
         <label for="api-key-input">AssemblyAI API Key:</label>
-        <p class="api-desc">To use this app, you need your own <a href="https://www.assemblyai.com/" target="_blank" rel="noopener">AssemblyAI</a> account and API key. This key is used to securely send your audio/video to AssemblyAI for transcription. <br>Sign up for a free account, copy your API key from their dashboard, and paste it below. Your key is stored only in your browser.</p>
+        <p class="api-desc">To use this app, you need your own <a href="https://www.assemblyai.com/" target="_blank" rel="noopener">AssemblyAI</a> account and API key. This key is used to securely send your audio/video to AssemblyAI for transcription. Sign up for a free account, copy your API key from their dashboard, and paste it below.</p>
         <input type="text" id="api-key-input" placeholder="Paste your API key here">
         <div class="theme-setting">
           <label>Theme:</label><br>
@@ -35,6 +35,7 @@
     <div id="spinner" style="display:none;"></div>
     <div id="status-message" style="display:none;"></div>
     <button id="cancel-upload" style="display:none;">Cancel</button>
+    <div id="player-container" style="display:none; margin-bottom: 16px;"></div>
     <div id="transcript-section" style="display:none;">
       <div class="transcript-header">
         <h2>Transcript</h2>

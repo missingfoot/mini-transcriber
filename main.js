@@ -126,6 +126,8 @@ fileElem.addEventListener('change', () => {
 
 let currentUploadXhr = null;
 const cancelUploadBtn = document.getElementById('cancel-upload');
+const playerContainer = document.getElementById('player-container');
+let currentPlayerUrl = null;
 
 async function handleFile(file) {
   const API_KEY = localStorage.getItem('assemblyai_api_key') || '';
@@ -137,6 +139,13 @@ async function handleFile(file) {
   showSpinner(true);
   setStatus('Uploading file… 0%');
   cancelUploadBtn.style.display = 'block';
+  // Always hide player at start
+  if (currentPlayerUrl) {
+    URL.revokeObjectURL(currentPlayerUrl);
+    currentPlayerUrl = null;
+  }
+  playerContainer.innerHTML = '';
+  playerContainer.style.display = 'none';
   let cancelled = false;
   try {
     // 1. Upload file to AssemblyAI with progress
@@ -183,7 +192,7 @@ async function handleFile(file) {
         'authorization': API_KEY,
         'content-type': 'application/json'
       },
-      body: JSON.stringify({ audio_url: upload_url })
+      body: JSON.stringify({ audio_url: upload_url, language_detection: true })
     });
     if (!transcriptRes.ok) throw new Error('Transcription request failed');
     setStatus('Transcribing audio…');
@@ -208,19 +217,59 @@ async function handleFile(file) {
     }
     setStatus('Transcription complete!');
     // 4. Show transcript
-    const formattedTranscript = transcriptText
-      .split(/([.!?])\s+/)
-      .reduce((acc, part, idx, arr) => {
-        if (/[.!?]/.test(part) && idx > 0) {
-          acc[acc.length - 1] += part;
-        } else if (part.trim()) {
-          acc.push(part.trim());
-        }
-        return acc;
-      }, [])
-      .map(sentence => `<p>${sentence}</p>`)
-      .join('');
+    let formattedTranscript = '';
+    if (!transcriptText || !transcriptText.trim()) {
+      formattedTranscript = '<p style="color:#888;">The file supplied did not contain any speech.</p>';
+    } else {
+      formattedTranscript = transcriptText
+        .split(/([.!?])\s+/)
+        .reduce((acc, part, idx, arr) => {
+          if (/[.!?]/.test(part) && idx > 0) {
+            acc[acc.length - 1] += part;
+          } else if (part.trim()) {
+            acc.push(part.trim());
+          }
+          return acc;
+        }, [])
+        .map(sentence => `<p>${sentence}</p>`)
+        .join('');
+    }
     transcriptBox.innerHTML = formattedTranscript;
+    // Show player only now
+    if (file && (file.type.startsWith('audio/') || file.type.startsWith('video/'))) {
+      const url = currentPlayerUrl || URL.createObjectURL(file);
+      currentPlayerUrl = url;
+      let playerEl;
+      if (file.type.startsWith('video/')) {
+        // Create a wrapper for the video to limit height but allow controls to be full width
+        const wrapper = document.createElement('div');
+        wrapper.style.width = '100%';
+        wrapper.style.maxHeight = '240px';
+        wrapper.style.backgroundColor = 'black';
+        wrapper.style.overflow = 'hidden';
+        playerEl = document.createElement('video');
+        playerEl.controls = true;
+        playerEl.style.width = '100%';
+        playerEl.style.display = 'block';
+        playerEl.style.objectFit = 'contain';
+        playerEl.style.maxHeight = '240px';
+        playerEl.src = url;
+        playerEl.id = 'media-player';
+        wrapper.appendChild(playerEl);
+        playerContainer.innerHTML = '';
+        playerContainer.appendChild(wrapper);
+        playerContainer.style.display = 'block';
+      } else {
+        playerEl = document.createElement('audio');
+        playerEl.controls = true;
+        playerEl.style.width = '100%';
+        playerEl.src = url;
+        playerEl.id = 'media-player';
+        playerContainer.innerHTML = '';
+        playerContainer.appendChild(playerEl);
+        playerContainer.style.display = 'block';
+      }
+    }
     showTranscriptSection(true);
     copyBtn.addEventListener('click', () => {
       // Copy all transcript text as plain text
@@ -240,6 +289,7 @@ async function handleFile(file) {
     showError(err.message);
     setStatus('An error occurred.');
     cancelUploadBtn.style.display = 'none';
+    playerContainer.style.display = 'none';
   } finally {
     showSpinner(false);
     currentUploadXhr = null;
