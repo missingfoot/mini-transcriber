@@ -131,8 +131,9 @@ let currentPlayerUrl = null;
 
 // Set up copy button event listener ONCE
 copyBtn.addEventListener('click', () => {
-  // Copy all transcript text as plain text
-  const text = transcriptBox.textContent;
+  // Copy all transcript sentences as plain text, separated by double line breaks
+  const paragraphs = Array.from(transcriptBox.querySelectorAll('p'));
+  const text = paragraphs.map(p => p.textContent).join('\n\n');
   navigator.clipboard.writeText(text);
   // Replace button label with 'Copied!' temporarily
   const originalText = copyBtn.textContent;
@@ -240,7 +241,7 @@ async function handleFile(file) {
       formattedTranscript = '<p style="color:#888;">The file supplied did not contain any speech.</p>';
     } else {
       formattedTranscript = transcriptText
-        .split(/([.!?])\s+/)
+        .split(/([.!?])(?=\s|$)/)
         .reduce((acc, part, idx, arr) => {
           if (/[.!?]/.test(part) && idx > 0) {
             acc[acc.length - 1] += part;
