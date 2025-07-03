@@ -129,6 +129,21 @@ const cancelUploadBtn = document.getElementById('cancel-upload');
 const playerContainer = document.getElementById('player-container');
 let currentPlayerUrl = null;
 
+// Set up copy button event listener ONCE
+copyBtn.addEventListener('click', () => {
+  // Copy all transcript text as plain text
+  const text = transcriptBox.textContent;
+  navigator.clipboard.writeText(text);
+  // Replace button label with 'Copied!' temporarily
+  const originalText = copyBtn.textContent;
+  copyBtn.textContent = 'Copied!';
+  copyBtn.disabled = true;
+  setTimeout(() => {
+    copyBtn.textContent = originalText;
+    copyBtn.disabled = false;
+  }, 1500);
+});
+
 async function handleFile(file) {
   const API_KEY = localStorage.getItem('assemblyai_api_key') || '';
   if (!API_KEY) {
@@ -146,6 +161,9 @@ async function handleFile(file) {
   }
   playerContainer.innerHTML = '';
   playerContainer.style.display = 'none';
+  // Reset copy button state for new file
+  copyBtn.textContent = 'Copy';
+  copyBtn.disabled = false;
   let cancelled = false;
   try {
     // 1. Upload file to AssemblyAI with progress
@@ -273,19 +291,6 @@ async function handleFile(file) {
       }
     }
     showTranscriptSection(true);
-    copyBtn.addEventListener('click', () => {
-      // Copy all transcript text as plain text
-      const text = transcriptBox.textContent;
-      navigator.clipboard.writeText(text);
-      // Replace button label with 'Copied!' temporarily
-      const originalText = copyBtn.textContent;
-      copyBtn.textContent = 'Copied!';
-      copyBtn.disabled = true;
-      setTimeout(() => {
-        copyBtn.textContent = originalText;
-        copyBtn.disabled = false;
-      }, 1500);
-    });
     statusMessage.style.display = 'none';
   } catch (err) {
     showError(err.message);
