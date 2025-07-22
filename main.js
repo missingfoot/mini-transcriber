@@ -400,7 +400,7 @@ async function handleFile(file) {
         playerContainer.innerHTML = `
           <div class="unsupported-message">
             <div class="unsupported-message-title">Preview unavailable</div>
-            <div class="unsupported-message-desc">This file type is not supported on your device.</div>
+            <div class="unsupported-message-desc">This file type is not supported on your device</div>
           </div>
         `;
         playerContainer.style.display = 'block';

@@ -333,7 +333,7 @@ body {
   color: #e0e0e0;
 }
 [data-theme="dark"] #file-info {
-  background: #2a2d2e !important;
+  background: #363a3b !important;
   border-left-color: #3399ff !important;
 }
 [data-theme="dark"] #file-info #file-name {
@@ -436,7 +436,6 @@ input[type="submit"] {
   border-radius: 6px;
   background: #f8f9fa;
   color: #6c757d;
-  border: 1px solid #dee2e6;
   text-align: left;
 }
 .unsupported-message-title {
@@ -449,9 +448,8 @@ input[type="submit"] {
   font-weight: normal;
 }
 [data-theme="dark"] .unsupported-message {
-  background: #2a2d2e;
+  background: #363a3b;
   color: #adb5bd;
-  border: 1px solid #495057;
 }
 [data-theme="dark"] .unsupported-message-title {
   color: #fff;
