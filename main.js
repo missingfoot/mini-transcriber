@@ -397,6 +397,7 @@ async function handleFile(file) {
       
       if (isIOS && unsupportedFormats.includes(ext)) {
         console.log('Showing unsupported message for iOS');
+        alert('iOS detected with unsupported format: ' + ext); // Debug alert
         // Show unsupported message only on iOS
         playerContainer.innerHTML = '<div style="padding: 16px; color: #b71c1c; background: #fff3f3; border-radius: 6px; text-align: center;">Preview unavailable: This file type is not supported on your device.</div>';
         playerContainer.style.display = 'block';
