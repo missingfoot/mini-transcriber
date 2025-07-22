@@ -384,15 +384,24 @@ async function handleFile(file) {
     saveSessionData(file, transcriptText);
     // Show player only now
     if (file && (file.type.startsWith('audio/') || file.type.startsWith('video/'))) {
-      // Check file extension for known unsupported formats
+      // iOS detection
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      
+      // Check file extension for known unsupported formats on iOS
       const ext = file.name.split('.').pop().toLowerCase();
       const unsupportedFormats = ['ogg', 'opus', 'flac', 'amr', 'wma', 'aiff', 'alac', 'ogv', 'avi', 'wmv', 'mkv'];
       
-      if (unsupportedFormats.includes(ext)) {
-        // Show unsupported message
+      console.log('File extension detected:', ext);
+      console.log('Is iOS?', isIOS);
+      console.log('Is unsupported on iOS?', isIOS && unsupportedFormats.includes(ext));
+      
+      if (isIOS && unsupportedFormats.includes(ext)) {
+        console.log('Showing unsupported message for iOS');
+        // Show unsupported message only on iOS
         playerContainer.innerHTML = '<div style="padding: 16px; color: #b71c1c; background: #fff3f3; border-radius: 6px; text-align: center;">Preview unavailable: This file type is not supported on your device.</div>';
         playerContainer.style.display = 'block';
       } else {
+        console.log('Creating player');
         // Try to create player as usual
         const url = currentPlayerUrl || URL.createObjectURL(file);
         currentPlayerUrl = url;
