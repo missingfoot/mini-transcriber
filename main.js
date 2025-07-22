@@ -440,6 +440,17 @@ async function handleFile(file) {
 
 // Helper to check if a file type is supported for playback
 function canPlayMediaType(file) {
+  // iOS detection
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  
+  // Check file extension for known problematic formats
+  const ext = file.name.split('.').pop().toLowerCase();
+  
+  // iOS doesn't support these formats
+  if (isIOS && ['ogg', 'opus', 'flac', 'amr', 'wma', 'aiff', 'alac', 'ogv', 'avi', 'wmv', 'mkv'].includes(ext)) {
+    return false;
+  }
+  
   let el;
   if (file.type.startsWith('video/')) {
     el = document.createElement('video');
@@ -448,19 +459,9 @@ function canPlayMediaType(file) {
   } else {
     return false;
   }
+  
   // Try canPlayType with the file's MIME type
-  if (el.canPlayType(file.type)) {
-    return el.canPlayType(file.type) !== '';
-  }
-  // Fallback: try by extension for common cases
-  const ext = file.name.split('.').pop().toLowerCase();
-  if (file.type.startsWith('audio/')) {
-    if (['mp3', 'wav', 'aac', 'm4a'].includes(ext)) return true;
-    if (['ogg', 'opus', 'flac', 'amr', 'wma', 'aiff', 'alac'].includes(ext)) return false;
-  }
-  if (file.type.startsWith('video/')) {
-    if (['mp4', 'mov', 'webm'].includes(ext)) return true;
-    if (['ogg', 'ogv', 'avi', 'wmv', 'mkv'].includes(ext)) return false;
-  }
-  return false;
+  const canPlay = el.canPlayType(file.type);
+  // Only consider it supported if the response is 'probably' or 'maybe' (but not for iOS with problematic formats)
+  return canPlay === 'probably' || (canPlay === 'maybe' && !isIOS);
 } 
