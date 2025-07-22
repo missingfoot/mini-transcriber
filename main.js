@@ -391,6 +391,8 @@ async function handleFile(file) {
       const ext = file.name.split('.').pop().toLowerCase();
       const unsupportedFormats = ['ogg', 'opus', 'flac', 'amr', 'wma', 'aiff', 'alac', 'ogv', 'avi', 'wmv', 'mkv'];
       
+      alert('Debug: File extension = ' + ext + ', Is iOS = ' + isIOS); // Debug alert
+      
       console.log('File extension detected:', ext);
       console.log('Is iOS?', isIOS);
       console.log('Is unsupported on iOS?', isIOS && unsupportedFormats.includes(ext));
