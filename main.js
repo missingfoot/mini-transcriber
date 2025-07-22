@@ -384,38 +384,44 @@ async function handleFile(file) {
     saveSessionData(file, transcriptText);
     // Show player only now
     if (file && (file.type.startsWith('audio/') || file.type.startsWith('video/'))) {
-      const url = currentPlayerUrl || URL.createObjectURL(file);
-      currentPlayerUrl = url;
-      let playerEl;
-      if (file.type.startsWith('video/')) {
-        // Create a wrapper for the video to limit height but allow controls to be full width
-        const wrapper = document.createElement('div');
-        wrapper.style.width = '100%';
-        wrapper.style.maxHeight = '240px';
-        wrapper.style.backgroundColor = 'black';
-        wrapper.style.overflow = 'hidden';
-        playerEl = document.createElement('video');
-        playerEl.controls = true;
-        playerEl.style.width = '100%';
-        playerEl.style.display = 'block';
-        playerEl.style.objectFit = 'contain';
-        playerEl.style.maxHeight = '240px';
-        playerEl.setAttribute('playsinline', '');
-        playerEl.setAttribute('webkit-playsinline', '');
-        playerEl.src = url;
-        playerEl.id = 'media-player';
-        wrapper.appendChild(playerEl);
-        playerContainer.innerHTML = '';
-        playerContainer.appendChild(wrapper);
-        playerContainer.style.display = 'block';
+      if (canPlayMediaType(file)) {
+        const url = currentPlayerUrl || URL.createObjectURL(file);
+        currentPlayerUrl = url;
+        let playerEl;
+        if (file.type.startsWith('video/')) {
+          // Create a wrapper for the video to limit height but allow controls to be full width
+          const wrapper = document.createElement('div');
+          wrapper.style.width = '100%';
+          wrapper.style.maxHeight = '240px';
+          wrapper.style.backgroundColor = 'black';
+          wrapper.style.overflow = 'hidden';
+          playerEl = document.createElement('video');
+          playerEl.controls = true;
+          playerEl.style.width = '100%';
+          playerEl.style.display = 'block';
+          playerEl.style.objectFit = 'contain';
+          playerEl.style.maxHeight = '240px';
+          playerEl.setAttribute('playsinline', '');
+          playerEl.setAttribute('webkit-playsinline', '');
+          playerEl.src = url;
+          playerEl.id = 'media-player';
+          wrapper.appendChild(playerEl);
+          playerContainer.innerHTML = '';
+          playerContainer.appendChild(wrapper);
+          playerContainer.style.display = 'block';
+        } else {
+          playerEl = document.createElement('audio');
+          playerEl.controls = true;
+          playerEl.style.width = '100%';
+          playerEl.src = url;
+          playerEl.id = 'media-player';
+          playerContainer.innerHTML = '';
+          playerContainer.appendChild(playerEl);
+          playerContainer.style.display = 'block';
+        }
       } else {
-        playerEl = document.createElement('audio');
-        playerEl.controls = true;
-        playerEl.style.width = '100%';
-        playerEl.src = url;
-        playerEl.id = 'media-player';
-        playerContainer.innerHTML = '';
-        playerContainer.appendChild(playerEl);
+        // Show unsupported message
+        playerContainer.innerHTML = '<div style="padding: 16px; color: #b71c1c; background: #fff3f3; border-radius: 6px; text-align: center;">Preview unavailable: This file type is not supported on your device.</div>';
         playerContainer.style.display = 'block';
       }
     }
@@ -430,4 +436,31 @@ async function handleFile(file) {
     showSpinner(false);
     currentUploadXhr = null;
   }
+}
+
+// Helper to check if a file type is supported for playback
+function canPlayMediaType(file) {
+  let el;
+  if (file.type.startsWith('video/')) {
+    el = document.createElement('video');
+  } else if (file.type.startsWith('audio/')) {
+    el = document.createElement('audio');
+  } else {
+    return false;
+  }
+  // Try canPlayType with the file's MIME type
+  if (el.canPlayType(file.type)) {
+    return el.canPlayType(file.type) !== '';
+  }
+  // Fallback: try by extension for common cases
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (file.type.startsWith('audio/')) {
+    if (['mp3', 'wav', 'aac', 'm4a'].includes(ext)) return true;
+    if (['ogg', 'opus', 'flac', 'amr', 'wma', 'aiff', 'alac'].includes(ext)) return false;
+  }
+  if (file.type.startsWith('video/')) {
+    if (['mp4', 'mov', 'webm'].includes(ext)) return true;
+    if (['ogg', 'ogv', 'avi', 'wmv', 'mkv'].includes(ext)) return false;
+  }
+  return false;
 } 
