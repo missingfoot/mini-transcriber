@@ -1,3 +1,16 @@
+// Debug logging for iOS Safari
+const debugDiv = document.getElementById('debug');
+if (debugDiv) {
+  debugDiv.style.display = 'block';
+  const originalConsoleLog = console.log;
+  console.log = function() {
+    const args = Array.from(arguments);
+    const logMessage = args.join(' ') + '<br>';
+    debugDiv.innerHTML += logMessage;
+    originalConsoleLog.apply(console, arguments);
+  };
+}
+
 // API key is now set by the user in the settings modal and stored in localStorage
 const UPLOAD_URL = 'https://api.assemblyai.com/v2/upload';
 const TRANSCRIPT_URL = 'https://api.assemblyai.com/v2/transcript';
@@ -389,7 +402,6 @@ async function handleFile(file) {
         currentPlayerUrl = url;
         let playerEl;
         if (file.type.startsWith('video/')) {
-          // Create a wrapper for the video to limit height but allow controls to be full width
           const wrapper = document.createElement('div');
           wrapper.style.width = '100%';
           wrapper.style.maxHeight = '240px';
@@ -403,8 +415,13 @@ async function handleFile(file) {
           playerEl.style.maxHeight = '240px';
           playerEl.setAttribute('playsinline', '');
           playerEl.setAttribute('webkit-playsinline', '');
-          playerEl.src = url;
+          playerEl.src = currentPlayerUrl || URL.createObjectURL(file);
           playerEl.id = 'media-player';
+          // Add error handling
+          playerEl.onerror = () => {
+            console.log('Player failed to load, showing unsupported message');
+            playerContainer.innerHTML = '<div style="padding: 16px; color: #b71c1c; background: #fff3f3; border-radius: 6px; text-align: center;">Preview unavailable: This file type is not supported on your device.</div>';
+          };
           wrapper.appendChild(playerEl);
           playerContainer.innerHTML = '';
           playerContainer.appendChild(wrapper);
@@ -413,8 +430,13 @@ async function handleFile(file) {
           playerEl = document.createElement('audio');
           playerEl.controls = true;
           playerEl.style.width = '100%';
-          playerEl.src = url;
+          playerEl.src = currentPlayerUrl || URL.createObjectURL(file);
           playerEl.id = 'media-player';
+          // Add error handling
+          playerEl.onerror = () => {
+            console.log('Player failed to load, showing unsupported message');
+            playerContainer.innerHTML = '<div style="padding: 16px; color: #b71c1c; background: #fff3f3; border-radius: 6px; text-align: center;">Preview unavailable: This file type is not supported on your device.</div>';
+          };
           playerContainer.innerHTML = '';
           playerContainer.appendChild(playerEl);
           playerContainer.style.display = 'block';
@@ -446,8 +468,11 @@ function canPlayMediaType(file) {
   // Check file extension for known problematic formats
   const ext = file.name.split('.').pop().toLowerCase();
   
+  console.log('File type check:', { fileType: file.type, extension: ext, isIOS });
+  
   // iOS doesn't support these formats
   if (isIOS && ['ogg', 'opus', 'flac', 'amr', 'wma', 'aiff', 'alac', 'ogv', 'avi', 'wmv', 'mkv'].includes(ext)) {
+    console.log('iOS detected, unsupported format:', ext);
     return false;
   }
   
@@ -462,6 +487,11 @@ function canPlayMediaType(file) {
   
   // Try canPlayType with the file's MIME type
   const canPlay = el.canPlayType(file.type);
+  console.log('canPlayType result:', canPlay);
+  
   // Only consider it supported if the response is 'probably' or 'maybe' (but not for iOS with problematic formats)
-  return canPlay === 'probably' || (canPlay === 'maybe' && !isIOS);
+  const isSupported = canPlay === 'probably' || (canPlay === 'maybe' && !isIOS);
+  console.log('Final supported result:', isSupported);
+  
+  return isSupported;
 } 
