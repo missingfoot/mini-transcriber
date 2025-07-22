@@ -174,6 +174,7 @@ if (resetBtn) {
       URL.revokeObjectURL(currentPlayerUrl);
       currentPlayerUrl = null;
     }
+    clearSessionData();
   });
 }
 
@@ -191,6 +192,69 @@ copyBtn.addEventListener('click', () => {
     copyBtn.textContent = originalText;
     copyBtn.disabled = false;
   }, 1500);
+});
+
+// --- Persistence helpers ---
+function saveSessionData(file, transcriptText) {
+  localStorage.setItem('mini_transcriber_file', JSON.stringify({
+    name: file.name,
+    size: file.size,
+    type: file.type
+  }));
+  localStorage.setItem('mini_transcriber_transcript', transcriptText);
+}
+function clearSessionData() {
+  localStorage.removeItem('mini_transcriber_file');
+  localStorage.removeItem('mini_transcriber_transcript');
+}
+function getSessionData() {
+  const file = localStorage.getItem('mini_transcriber_file');
+  const transcript = localStorage.getItem('mini_transcriber_transcript');
+  return {
+    file: file ? JSON.parse(file) : null,
+    transcript: transcript || null
+  };
+}
+
+// --- On page load, restore session if present ---
+window.addEventListener('DOMContentLoaded', () => {
+  const API_KEY = localStorage.getItem('assemblyai_api_key') || '';
+  if (!API_KEY) {
+    settingsModal.style.display = 'flex';
+    apiKeyInput.focus();
+  }
+  // Restore session data if present
+  const session = getSessionData();
+  if (session.file && session.transcript) {
+    // Show file info
+    fileName.textContent = session.file.name;
+    fileSize.textContent = formatFileSize(session.file.size);
+    fileInfo.style.display = 'block';
+    // Show transcript
+    let formattedTranscript = '';
+    if (!session.transcript.trim()) {
+      formattedTranscript = '<p style="color:#888;">The file supplied did not contain any speech.</p>';
+    } else {
+      formattedTranscript = session.transcript
+        .split(/([.!?])(?=\s|$)/)
+        .reduce((acc, part, idx, arr) => {
+          if (/[.!?]/.test(part) && idx > 0) {
+            acc[acc.length - 1] += part;
+          } else if (part.trim()) {
+            acc.push(part.trim());
+          }
+          return acc;
+        }, [])
+        .map(sentence => `<p>${sentence}</p>`)
+        .join('');
+    }
+    transcriptBox.innerHTML = formattedTranscript;
+    showTranscriptSection(true);
+    statusMessage.style.display = 'none';
+    playerContainer.style.display = 'none'; // Can't restore file for playback
+    copyBtn.textContent = 'Copy';
+    copyBtn.disabled = false;
+  }
 });
 
 async function handleFile(file) {
@@ -304,6 +368,8 @@ async function handleFile(file) {
     transcriptBox.innerHTML = formattedTranscript;
     // Show file info now, just before player
     showFileInfo(file);
+    // Save session data
+    saveSessionData(file, transcriptText);
     // Show player only now
     if (file && (file.type.startsWith('audio/') || file.type.startsWith('video/'))) {
       const url = currentPlayerUrl || URL.createObjectURL(file);
