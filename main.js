@@ -384,12 +384,16 @@ async function handleFile(file) {
     saveSessionData(file, transcriptText);
     // Show player only now
     alert('Debug: About to check player creation. File type = ' + file.type); // Debug alert
-    if (file && (file.type.startsWith('audio/') || file.type.startsWith('video/'))) {
+    // Check if it's an audio/video file by type or extension
+    const ext = file.name.split('.').pop().toLowerCase();
+    const isAudioVideo = file.type.startsWith('audio/') || file.type.startsWith('video/') || 
+                        ['mp3', 'wav', 'aac', 'm4a', 'ogg', 'opus', 'flac', 'amr', 'wma', 'aiff', 'alac', 'mp4', 'mov', 'webm', 'ogv', 'avi', 'wmv', 'mkv'].includes(ext);
+    
+    if (file && isAudioVideo) {
       // iOS detection
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
       
       // Check file extension for known unsupported formats on iOS
-      const ext = file.name.split('.').pop().toLowerCase();
       const unsupportedFormats = ['ogg', 'opus', 'flac', 'amr', 'wma', 'aiff', 'alac', 'ogv', 'avi', 'wmv', 'mkv'];
       
       alert('Debug: File extension = ' + ext + ', Is iOS = ' + isIOS); // Debug alert
