@@ -434,13 +434,28 @@ input[type="submit"] {
 .unsupported-message {
   padding: 16px;
   border-radius: 6px;
-  text-align: center;
   background: #f8f9fa;
   color: #6c757d;
   border: 1px solid #dee2e6;
+  text-align: left;
+}
+.unsupported-message-title {
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 2px;
+}
+.unsupported-message-desc {
+  color: #6c757d;
+  font-weight: normal;
 }
 [data-theme="dark"] .unsupported-message {
   background: #2a2d2e;
   color: #adb5bd;
   border: 1px solid #495057;
+}
+[data-theme="dark"] .unsupported-message-title {
+  color: #fff;
+}
+[data-theme="dark"] .unsupported-message-desc {
+  color: #adb5bd;
 } 

@@ -397,7 +397,12 @@ async function handleFile(file) {
       
       if (isIOS && unsupportedFormats.includes(ext)) {
         // Show unsupported message only on iOS
-        playerContainer.innerHTML = '<div class="unsupported-message">Preview unavailable: This file type is not supported on your device.</div>';
+        playerContainer.innerHTML = `
+          <div class="unsupported-message">
+            <div class="unsupported-message-title">Preview unavailable</div>
+            <div class="unsupported-message-desc">This file type is not supported on your device.</div>
+          </div>
+        `;
         playerContainer.style.display = 'block';
       } else {
         // Try to create player as usual
