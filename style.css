@@ -430,3 +430,17 @@ input[type="submit"] {
   margin-bottom: 4px;
   margin-right: 48px;
 } 
+/* Unsupported file message styling */
+.unsupported-message {
+  padding: 16px;
+  border-radius: 6px;
+  text-align: center;
+  background: #fff3f3;
+  color: #b71c1c;
+  border: 1px solid #ffcdd2;
+}
+[data-theme="dark"] .unsupported-message {
+  background: #2d1b1b;
+  color: #ff8a80;
+  border: 1px solid #4a2c2c;
+} 
