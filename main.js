@@ -383,6 +383,7 @@ async function handleFile(file) {
     // Save session data
     saveSessionData(file, transcriptText);
     // Show player only now
+    alert('Debug: About to check player creation. File type = ' + file.type); // Debug alert
     if (file && (file.type.startsWith('audio/') || file.type.startsWith('video/'))) {
       // iOS detection
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
