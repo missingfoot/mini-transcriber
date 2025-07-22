@@ -435,12 +435,12 @@ input[type="submit"] {
   padding: 16px;
   border-radius: 6px;
   text-align: center;
-  background: #fff3f3;
-  color: #b71c1c;
-  border: 1px solid #ffcdd2;
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
 }
 [data-theme="dark"] .unsupported-message {
-  background: #2d1b1b;
-  color: #ff8a80;
-  border: 1px solid #4a2c2c;
+  background: #2a2d2e;
+  color: #adb5bd;
+  border: 1px solid #495057;
 } 
