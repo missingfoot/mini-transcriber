@@ -174,6 +174,7 @@ if (resetBtn) {
       URL.revokeObjectURL(currentPlayerUrl);
       currentPlayerUrl = null;
     }
+    // Clear localStorage
     clearSessionData();
   });
 }
@@ -217,13 +218,7 @@ function getSessionData() {
 }
 
 // --- On page load, restore session if present ---
-window.addEventListener('DOMContentLoaded', () => {
-  const API_KEY = localStorage.getItem('assemblyai_api_key') || '';
-  if (!API_KEY) {
-    settingsModal.style.display = 'flex';
-    apiKeyInput.focus();
-  }
-  // Restore session data if present
+function restoreSession() {
   const session = getSessionData();
   if (session.file && session.transcript) {
     // Show file info
@@ -255,21 +250,32 @@ window.addEventListener('DOMContentLoaded', () => {
     copyBtn.textContent = 'Copy';
     copyBtn.disabled = false;
   }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const API_KEY = localStorage.getItem('assemblyai_api_key') || '';
+  if (!API_KEY) {
+    settingsModal.style.display = 'flex';
+    apiKeyInput.focus();
+  }
+  restoreSession();
 });
 
+// --- In handleFile, clear UI and localStorage before processing new file ---
 async function handleFile(file) {
   const API_KEY = localStorage.getItem('assemblyai_api_key') || '';
   if (!API_KEY) {
     showError('Please set your AssemblyAI API key in Settings.');
     return;
   }
-  // Clear any restored transcript/file info from previous session
+  // Clear all UI and localStorage before new upload
   transcriptBox.innerHTML = '';
   fileInfo.style.display = 'none';
   showTranscriptSection(false);
   playerContainer.innerHTML = '';
   playerContainer.style.display = 'none';
   statusMessage.style.display = 'none';
+  clearSessionData();
   showSpinner(true);
   setStatus('Uploading file… 0%');
   cancelUploadBtn.style.display = 'block';
