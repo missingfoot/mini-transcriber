@@ -10,6 +10,9 @@ const transcriptSection = document.getElementById('transcript-section');
 const transcriptBox = document.getElementById('transcript');
 const copyBtn = document.getElementById('copyBtn');
 const statusMessage = document.getElementById('status-message');
+const fileInfo = document.getElementById('file-info');
+const fileName = document.getElementById('file-name');
+const fileSize = document.getElementById('file-size');
 
 // Settings modal logic
 const settingsLink = document.getElementById('settings-link');
@@ -21,12 +24,16 @@ const apiKeyInput = document.getElementById('api-key-input');
 const themeRadios = document.querySelectorAll('input[name="theme"]');
 const htmlEl = document.documentElement;
 function applyTheme(theme) {
-  if (theme === 'light') {
-    htmlEl.setAttribute('data-theme', 'light');
-  } else if (theme === 'dark') {
-    htmlEl.setAttribute('data-theme', 'dark');
+  if (theme === 'device') {
+    const setDeviceTheme = () => {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      htmlEl.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    };
+    setDeviceTheme();
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', setDeviceTheme);
   } else {
-    htmlEl.removeAttribute('data-theme');
+    htmlEl.setAttribute('data-theme', theme);
   }
 }
 function getSavedTheme() {
@@ -89,6 +96,7 @@ window.addEventListener('DOMContentLoaded', () => {
 function showSpinner(show) {
   spinner.style.display = show ? 'block' : 'none';
   statusMessage.style.display = show ? 'block' : 'none';
+  if (show) fileInfo.style.display = 'none'; // Only hide file info when spinner is shown
 }
 function showTranscriptSection(show) {
   transcriptSection.style.display = show ? 'block' : 'none';
@@ -98,6 +106,20 @@ function showError(msg) {
 }
 function setStatus(msg) {
   statusMessage.textContent = msg;
+}
+
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function showFileInfo(file) {
+  fileName.textContent = file.name;
+  fileSize.textContent = formatFileSize(file.size);
+  fileInfo.style.display = 'block';
 }
 
 // Drag & Drop
@@ -128,6 +150,32 @@ let currentUploadXhr = null;
 const cancelUploadBtn = document.getElementById('cancel-upload');
 const playerContainer = document.getElementById('player-container');
 let currentPlayerUrl = null;
+const resetBtn = document.getElementById('reset-btn');
+if (resetBtn) {
+  resetBtn.addEventListener('click', () => {
+    // Hide file info
+    fileInfo.style.display = 'none';
+    // Hide player
+    playerContainer.innerHTML = '';
+    playerContainer.style.display = 'none';
+    // Hide transcript
+    showTranscriptSection(false);
+    // Hide status message
+    statusMessage.style.display = 'none';
+    // Hide cancel button
+    cancelUploadBtn.style.display = 'none';
+    // Reset file input
+    fileElem.value = '';
+    // Reset copy button
+    copyBtn.textContent = 'Copy';
+    copyBtn.disabled = false;
+    // Revoke any object URL
+    if (currentPlayerUrl) {
+      URL.revokeObjectURL(currentPlayerUrl);
+      currentPlayerUrl = null;
+    }
+  });
+}
 
 // Set up copy button event listener ONCE
 copyBtn.addEventListener('click', () => {
@@ -254,6 +302,8 @@ async function handleFile(file) {
         .join('');
     }
     transcriptBox.innerHTML = formattedTranscript;
+    // Show file info now, just before player
+    showFileInfo(file);
     // Show player only now
     if (file && (file.type.startsWith('audio/') || file.type.startsWith('video/'))) {
       const url = currentPlayerUrl || URL.createObjectURL(file);

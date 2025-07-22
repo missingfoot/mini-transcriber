@@ -200,80 +200,6 @@ body {
   height: 1.3em;
   accent-color: #007bff;
 }
-@media (prefers-color-scheme: dark) {
-  body {
-    background: #181a1b;
-    color: #f1f1f1;
-  }
-  .container {
-    background: #23272a;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.6);
-  }
-  #drop-area {
-    background: #232b32;
-    border-color: #3399ff;
-    color: #e0e6ed;
-  }
-  #drop-area.dragover {
-    background: #1a222b;
-  }
-  #spinner {
-    border: 6px solid #23272a;
-    border-top: 6px solid #3399ff;
-  }
-  .transcript-header {
-    background: #23272a;
-  }
-  #transcript {
-    background: none;
-    color: #f1f1f1;
-  }
-  #transcript p {
-    color: #f1f1f1;
-  }
-  #copyBtn {
-    background: #2ecc71;
-    color: #fff;
-  }
-  #fileSelect {
-    background: #3399ff;
-    color: #fff;
-  }
-  #status-message {
-    color: #bbb;
-  }
-  .modal-content {
-    background: #23272a;
-    color: #f1f1f1;
-    text-align: left;
-  }
-  #api-key-input {
-    background: #181a1b;
-    color: #f1f1f1;
-    border: 1px solid #444;
-  }
-  #save-api-key {
-    background: #3399ff;
-    color: #fff;
-  }
-  .api-desc {
-    color: #ccc;
-  }
-  .api-desc a {
-    color: #fff;
-    text-decoration: underline;
-  }
-  .theme-setting {
-    color: #f1f1f1;
-  }
-  #settings-link {
-    color: #fff;
-  }
-  #settings-link:hover {
-    color: #e0e0e0;
-  }
-}
-
 [data-theme="light"] body {
   background: #f7f7f7 !important;
   color: #222 !important;
@@ -334,6 +260,16 @@ body {
 }
 [data-theme="light"] #settings-link:hover {
   color: #0056b3;
+}
+[data-theme="light"] #file-info {
+  background: #f8f9fa !important;
+  border-left-color: #007bff !important;
+}
+[data-theme="light"] #file-info #file-name {
+  color: #333 !important;
+}
+[data-theme="light"] #file-info #file-size {
+  color: #666 !important;
 }
 
 [data-theme="dark"] body {
@@ -397,6 +333,16 @@ body {
 [data-theme="dark"] #settings-link:hover {
   color: #e0e0e0;
 }
+[data-theme="dark"] #file-info {
+  background: #2a2d2e !important;
+  border-left-color: #3399ff !important;
+}
+[data-theme="dark"] #file-info #file-name {
+  color: #f1f1f1 !important;
+}
+[data-theme="dark"] #file-info #file-size {
+  color: #bbb !important;
+}
 #cancel-upload {
   background: none;
   border: none;
@@ -413,15 +359,7 @@ body {
 #cancel-upload:hover {
   color: #0056b3;
 }
-@media (prefers-color-scheme: dark) {
-  #cancel-upload {
-    color: #fff;
-    text-decoration: none;
-  }
-  #cancel-upload:hover {
-    color: #e0e0e0;
-  }
-}
+
 [data-theme="light"] #cancel-upload {
   color: #007bff;
 }
@@ -434,4 +372,42 @@ body {
 }
 [data-theme="dark"] #cancel-upload:hover {
   color: #e0e0e0;
+} 
+#reset-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eee;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s;
+}
+#reset-btn:hover {
+  background: #e57373;
+}
+#reset-btn svg {
+  stroke: #888;
+  transition: stroke 0.15s;
+}
+#reset-btn:hover svg {
+  stroke: #fff;
+}
+[data-theme="dark"] #reset-btn {
+  background: #23272a;
+}
+[data-theme="dark"] #reset-btn:hover {
+  background: #c62828;
+}
+[data-theme="dark"] #reset-btn svg {
+  stroke: #bbb;
+}
+[data-theme="dark"] #reset-btn:hover svg {
+  stroke: #fff;
 } 
