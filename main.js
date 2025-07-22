@@ -263,7 +263,13 @@ async function handleFile(file) {
     showError('Please set your AssemblyAI API key in Settings.');
     return;
   }
+  // Clear any restored transcript/file info from previous session
+  transcriptBox.innerHTML = '';
+  fileInfo.style.display = 'none';
   showTranscriptSection(false);
+  playerContainer.innerHTML = '';
+  playerContainer.style.display = 'none';
+  statusMessage.style.display = 'none';
   showSpinner(true);
   setStatus('Uploading file… 0%');
   cancelUploadBtn.style.display = 'block';
